@@ -1049,6 +1049,8 @@ def get_oai_code(
                     pass
 
         except Exception as e:
+            if getattr(cfg, 'GLOBAL_STOP', False):
+                return None
             print(f"[{cfg.ts()}] [CRITICAL ERROR] 邮件循环发生异常: {str(e)}")
             import traceback
             traceback.print_exc()  # 打印完整堆栈信息

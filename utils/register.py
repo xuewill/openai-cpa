@@ -179,6 +179,7 @@ def _post_with_retry(
 ) -> Any:
     last_error: Optional[Exception] = None
     for attempt in range(retries + 1):
+        if getattr(cfg, 'GLOBAL_STOP', False): raise RuntimeError("系统已停止，强制中断网络请求")
         try:
             if json_body is not None:
                 return session.post(
@@ -537,6 +538,7 @@ def run(proxy: Optional[str], run_ctx: dict = None) -> tuple:
 
             code = ""
             for resend_attempt in range(max(1, cfg.MAX_OTP_RETRIES)):
+                if getattr(cfg, 'GLOBAL_STOP', False): return None, None
                 if resend_attempt > 0:
                     print(f"\n[{cfg.ts()}] [INFO] 正在重试 {resend_attempt}/{cfg.MAX_OTP_RETRIES}...")
                     try:
@@ -786,6 +788,7 @@ def run(proxy: Optional[str], run_ctx: dict = None) -> tuple:
 
             code2 = ""
             for resend_attempt in range(max(1, cfg.MAX_OTP_RETRIES)):
+                if getattr(cfg, 'GLOBAL_STOP', False): return None, None
                 if resend_attempt > 0:
                     print(f"\n[{cfg.ts()}] [INFO] 正在重试 {resend_attempt}/{cfg.MAX_OTP_RETRIES}...")
                     try:

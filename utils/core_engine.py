@@ -478,6 +478,8 @@ def _handle_dead_account(name: str, is_disabled: bool) -> None:
         print(f"[{ts()}] [WARNING] 凭证 {mask_email(name)} 已死亡，当前已是禁用状态，根据配置保留不删除。")
 
 def handle_registration_result(result: Any, cpa_upload: bool = False, run_ctx: dict = None) -> str:
+    if getattr(cfg, 'GLOBAL_STOP', False):
+        return "stopped"
     global run_stats
 
     if run_ctx:
@@ -1026,6 +1028,10 @@ async def cpa_main_loop(args, async_stop_event: asyncio.Event):
             else:
                 print(f"[{ts()}] [INFO] 仓库存量充足，无需补发。")
 
+            if async_stop_event.is_set() or getattr(cfg, 'GLOBAL_STOP', False):
+                print(f"[{ts()}] [系统] 主调度循环已彻底退出。")
+                break
+
             print(f"[{ts()}] [INFO] 维护周期结束，{cfg.CHECK_INTERVAL_MINUTES} 分钟后进行下一次巡检...")
             try:
                 await asyncio.wait_for(
@@ -1179,6 +1185,9 @@ async def sub2api_main_loop(args, async_stop_event: asyncio.Event):
             else:
                 print(f"[{ts()}] [INFO] 仓库存量充足，无需补发。")
 
+            if async_stop_event.is_set() or getattr(cfg, 'GLOBAL_STOP', False):
+                print(f"[{ts()}] [系统] 主调度循环已彻底退出。")
+                break
             print(f"[{ts()}] [INFO] 维护周期结束，{cfg.SUB2API_CHECK_INTERVAL} 分钟后进行下一次巡检...")
             try:
                 await asyncio.wait_for(
